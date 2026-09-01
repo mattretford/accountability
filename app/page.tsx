@@ -76,6 +76,7 @@ export default async function Home({
     ]),
   )
   const isToday = selectedDate === currentDate
+  const isFuture = selectedDate > currentDate
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-10">
@@ -97,6 +98,12 @@ export default async function Home({
         {!isToday && <Link className="px-4 py-2 text-sm font-medium" href="/">Today</Link>}
         <Link className="rounded-lg bg-white px-4 py-2 text-sm shadow-sm" href={`/?date=${shiftDate(selectedDate, 1)}`}>Next →</Link>
       </nav>
+
+      {isFuture && (
+        <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          This is a future day. You can view it, but commitments and extra wins cannot be selected yet.
+        </p>
+      )}
 
       <section className="mt-8 space-y-3">
         {dailyCommitments.length === 0 && (
@@ -124,9 +131,10 @@ export default async function Home({
                   </p>
                 </div>
                 <button
-                  aria-label={`${completed ? 'Mark incomplete' : 'Mark complete'}: ${habit.name}`}
+                  aria-label={isFuture ? `Unavailable until ${displayDate(selectedDate)}: ${habit.name}` : `${completed ? 'Mark incomplete' : 'Mark complete'}: ${habit.name}`}
                   aria-pressed={completed}
-                  className={`grid size-11 shrink-0 place-items-center rounded-full border text-xl font-bold ${completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 bg-white text-transparent'}`}
+                  className={`grid size-11 shrink-0 place-items-center rounded-full border text-xl font-bold disabled:cursor-not-allowed disabled:opacity-40 ${completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 bg-white text-transparent'}`}
+                  disabled={isFuture}
                 >
                   ✓
                 </button>
@@ -156,8 +164,9 @@ export default async function Home({
                   <input type="hidden" name="completed" value={String(!completed)} />
                   <button
                     aria-pressed={completed}
-                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${completed ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white text-zinc-700 hover:border-violet-400'}`}
-                    title={habit.description ?? undefined}
+                    className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${completed ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white text-zinc-700 hover:border-violet-400'}`}
+                    disabled={isFuture}
+                    title={isFuture ? 'Extra wins cannot be selected for future days.' : habit.description ?? undefined}
                   >
                     {completed && <span aria-hidden="true">✓ </span>}{habit.name}
                   </button>

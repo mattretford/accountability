@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { validDate } from '@/lib/dates'
+import { todayDate, validDate } from '@/lib/dates'
 import { createClient } from '@/lib/supabase/server'
 
 export async function setHabitCompletion(formData: FormData) {
@@ -10,6 +10,9 @@ export async function setHabitCompletion(formData: FormData) {
   const entryDate = validDate(String(formData.get('entryDate') ?? ''))
   const completed = formData.get('completed') === 'true'
   if (!habitId || !entryDate) return
+  if (entryDate > todayDate()) {
+    throw new Error('Future days cannot be marked complete.')
+  }
 
   const supabase = await createClient()
   const { data: authData, error: authError } = await supabase.auth.getUser()
