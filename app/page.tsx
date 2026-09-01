@@ -1,69 +1,172 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { logout } from '@/app/actions/auth'
+import { setHabitCompletion } from '@/app/actions/entries'
+import { displayDate, shiftDate, todayDate, validDate } from '@/lib/dates'
+import { createClient } from '@/lib/supabase/server'
+import { calculateStreak } from '@/lib/streaks'
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>
+}) {
+  const supabase = await createClient()
+  const { data: authData } = await supabase.auth.getUser()
+  if (!authData.user) redirect('/login')
+
+  const params = await searchParams
+  const selectedDate = validDate(params.date) ?? todayDate()
+
+  const { data: habits, error: habitsError } = await supabase
+    .from('habits')
+    .select('id, name, description, habit_kind')
+    .eq('user_id', authData.user.id)
+    .is('archived_at', null)
+    .order('created_at')
+
+  if (habitsError) throw new Error(`Could not load habits: ${habitsError.message}`)
+
+  const dailyCommitments = habits.filter((habit) => habit.habit_kind === 'daily_commitment')
+  const extraWins = habits.filter((habit) => habit.habit_kind === 'extra_win')
+  const habitIds = habits.map((habit) => habit.id)
+  const dailyCommitmentIds = dailyCommitments.map((habit) => habit.id)
+  const currentDate = todayDate()
+
+  const entriesPromise = habitIds.length
+    ? supabase
+        .from('habit_entries')
+        .select('habit_id, completed')
+        .eq('entry_date', selectedDate)
+        .in('habit_id', habitIds)
+    : { data: [], error: null }
+
+  const streakEntriesPromise = dailyCommitmentIds.length
+    ? supabase
+        .from('habit_entries')
+        .select('habit_id, entry_date')
+        .eq('completed', true)
+        .lte('entry_date', currentDate)
+        .in('habit_id', dailyCommitmentIds)
+    : { data: [], error: null }
+
+  const [entries, streakEntries] = await Promise.all([
+    entriesPromise,
+    streakEntriesPromise,
+  ])
+
+  if (entries.error) throw new Error(`Could not load entries: ${entries.error.message}`)
+  if (streakEntries.error) throw new Error(`Could not load streaks: ${streakEntries.error.message}`)
+
+  const completedByHabit = new Map(
+    entries.data?.map((entry) => [entry.habit_id, entry.completed]),
+  )
+  const completedCount = dailyCommitments.filter((habit) => completedByHabit.get(habit.id)).length
+  const extraWinCount = extraWins.filter((habit) => completedByHabit.get(habit.id)).length
+  const completedDatesByHabit = new Map<string, string[]>()
+  streakEntries.data?.forEach((entry) => {
+    const dates = completedDatesByHabit.get(entry.habit_id) ?? []
+    dates.push(entry.entry_date)
+    completedDatesByHabit.set(entry.habit_id, dates)
+  })
+  const streaksByHabit = new Map(
+    dailyCommitments.map((habit) => [
+      habit.id,
+      calculateStreak(completedDatesByHabit.get(habit.id) ?? [], currentDate),
+    ]),
+  )
+  const isToday = selectedDate === currentDate
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="mx-auto w-full max-w-3xl px-6 py-10">
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-zinc-500">{isToday ? 'Today' : 'Daily checklist'}</p>
+          <h1 className="mt-1 text-3xl font-semibold text-zinc-950">{displayDate(selectedDate)}</h1>
+          <p className="mt-2 text-sm text-zinc-600">{completedCount} of {dailyCommitments.length} daily commitments completed</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex gap-2">
+          <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/calendar">Calendar</Link>
+          <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/habits">Manage habits</Link>
+          <form action={logout}><button className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">Sign out</button></form>
         </div>
-      </main>
-    </div>
-  );
+      </header>
+
+      <nav aria-label="Choose day" className="mt-8 flex items-center justify-between rounded-xl bg-zinc-100 p-2">
+        <Link className="rounded-lg bg-white px-4 py-2 text-sm shadow-sm" href={`/?date=${shiftDate(selectedDate, -1)}`}>← Previous</Link>
+        {!isToday && <Link className="px-4 py-2 text-sm font-medium" href="/">Today</Link>}
+        <Link className="rounded-lg bg-white px-4 py-2 text-sm shadow-sm" href={`/?date=${shiftDate(selectedDate, 1)}`}>Next →</Link>
+      </nav>
+
+      <section className="mt-8 space-y-3">
+        {dailyCommitments.length === 0 && (
+          <div className="rounded-xl border border-dashed border-zinc-300 p-8 text-center">
+            <p className="text-zinc-600">You don&apos;t have any daily commitments yet.</p>
+            <Link className="mt-4 inline-block rounded-lg bg-zinc-950 px-4 py-2 text-sm font-medium text-white" href="/habits">Create one</Link>
+          </div>
+        )}
+
+        {dailyCommitments.map((habit) => {
+          const completed = completedByHabit.get(habit.id) ?? false
+          const streak = streaksByHabit.get(habit.id)!
+
+          return (
+            <article className={`rounded-xl border p-5 ${completed ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200 bg-white'}`} key={habit.id}>
+              <form action={setHabitCompletion} className="flex items-center justify-between gap-4">
+                <input type="hidden" name="habitId" value={habit.id} />
+                <input type="hidden" name="entryDate" value={selectedDate} />
+                <input type="hidden" name="completed" value={String(!completed)} />
+                <div>
+                  <h2 className={`font-semibold ${completed ? 'text-emerald-900' : 'text-zinc-950'}`}>{habit.name}</h2>
+                  {habit.description && <p className="mt-1 text-sm text-zinc-600">{habit.description}</p>}
+                  <p className="mt-2 text-xs font-medium text-amber-700" title="Current streak is calculated through today, or yesterday if today is not complete yet.">
+                    🔥 {streak.current} {streak.current === 1 ? 'day' : 'days'} current · Best {streak.longest} {streak.longest === 1 ? 'day' : 'days'}
+                  </p>
+                </div>
+                <button
+                  aria-label={`${completed ? 'Mark incomplete' : 'Mark complete'}: ${habit.name}`}
+                  aria-pressed={completed}
+                  className={`grid size-11 shrink-0 place-items-center rounded-full border text-xl font-bold ${completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 bg-white text-transparent'}`}
+                >
+                  ✓
+                </button>
+              </form>
+            </article>
+          )
+        })}
+      </section>
+
+      <section className="mt-10 border-t border-zinc-200 pt-8">
+        <div>
+          <h2 className="text-xl font-semibold text-zinc-950">Extra wins</h2>
+          <p className="mt-1 text-sm text-zinc-600">Optional wins for this day · {extraWinCount} selected</p>
+        </div>
+
+        {extraWins.length === 0 ? (
+          <p className="mt-4 text-sm text-zinc-500">No extra wins configured. <Link className="underline" href="/habits">Add one</Link>.</p>
+        ) : (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {extraWins.map((habit) => {
+              const completed = completedByHabit.get(habit.id) ?? false
+
+              return (
+                <form action={setHabitCompletion} key={habit.id}>
+                  <input type="hidden" name="habitId" value={habit.id} />
+                  <input type="hidden" name="entryDate" value={selectedDate} />
+                  <input type="hidden" name="completed" value={String(!completed)} />
+                  <button
+                    aria-pressed={completed}
+                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${completed ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white text-zinc-700 hover:border-violet-400'}`}
+                    title={habit.description ?? undefined}
+                  >
+                    {completed && <span aria-hidden="true">✓ </span>}{habit.name}
+                  </button>
+                </form>
+              )
+            })}
+          </div>
+        )}
+      </section>
+    </main>
+  )
 }
