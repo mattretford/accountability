@@ -11,6 +11,33 @@ export type HabitKind = 'daily_commitment' | 'extra_win'
 export type Database = {
   public: {
     Tables: {
+      daily_spending: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          spend_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          spend_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          spend_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       habit_entries: {
         Row: {
           completed: boolean

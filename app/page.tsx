@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import { setHabitCompletion } from '@/app/actions/entries'
+import { setDailySpending } from '@/app/actions/spending'
 import { displayDate, shiftDate, todayDate, validDate } from '@/lib/dates'
 import { createClient } from '@/lib/supabase/server'
 import { calculateStreak } from '@/lib/streaks'
@@ -50,13 +51,22 @@ export default async function Home({
         .in('habit_id', dailyCommitmentIds)
     : { data: [], error: null }
 
-  const [entries, streakEntries] = await Promise.all([
+  const spendingPromise = supabase
+    .from('daily_spending')
+    .select('amount')
+    .eq('user_id', authData.user.id)
+    .eq('spend_date', selectedDate)
+    .maybeSingle()
+
+  const [entries, streakEntries, spending] = await Promise.all([
     entriesPromise,
     streakEntriesPromise,
+    spendingPromise,
   ])
 
   if (entries.error) throw new Error(`Could not load entries: ${entries.error.message}`)
   if (streakEntries.error) throw new Error(`Could not load streaks: ${streakEntries.error.message}`)
+  if (spending.error) throw new Error(`Could not load spending: ${spending.error.message}`)
 
   const completedByHabit = new Map(
     entries.data?.map((entry) => [entry.habit_id, entry.completed]),
@@ -101,7 +111,7 @@ export default async function Home({
 
       {isFuture && (
         <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          This is a future day. You can view it, but commitments and extra wins cannot be selected yet.
+          This is a future day. You can view it, but commitments, extra wins, and spending cannot be recorded yet.
         </p>
       )}
 
@@ -175,6 +185,37 @@ export default async function Home({
             })}
           </div>
         )}
+      </section>
+
+      <section className="mt-10 border-t border-zinc-200 pt-8">
+        <div>
+          <h2 className="text-xl font-semibold text-zinc-950">Daily spending</h2>
+          <p className="mt-1 text-sm text-zinc-600">Record your total spending for this day in UK pounds.</p>
+        </div>
+
+        <form action={setDailySpending} className="mt-4 flex max-w-sm items-end gap-3">
+          <input type="hidden" name="spendDate" value={selectedDate} />
+          <label className="flex-1 text-sm font-medium text-zinc-800">
+            Amount
+            <span className="mt-1 flex overflow-hidden rounded-lg border border-zinc-300 bg-white focus-within:border-zinc-500">
+              <span className="grid place-items-center border-r border-zinc-200 bg-zinc-50 px-3 text-zinc-600">£</span>
+              <input
+                className="min-w-0 flex-1 px-3 py-2 outline-none disabled:cursor-not-allowed disabled:bg-zinc-100"
+                defaultValue={spending.data ? spending.data.amount.toFixed(2) : ''}
+                disabled={isFuture}
+                inputMode="decimal"
+                max="9999999999.99"
+                min="0"
+                name="amount"
+                placeholder="0.00"
+                required
+                step="0.01"
+                type="number"
+              />
+            </span>
+          </label>
+          <button className="rounded-lg bg-zinc-950 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-40" disabled={isFuture}>Save</button>
+        </form>
       </section>
     </main>
   )

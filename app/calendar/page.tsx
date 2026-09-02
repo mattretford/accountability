@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import { monthDetails, shiftMonth, todayDate, validMonth } from '@/lib/dates'
+import { formatGBP, sumCurrency } from '@/lib/money'
 import { createClient } from '@/lib/supabase/server'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -30,8 +31,8 @@ export default async function CalendarPage({
 
   const dailyHabitIds = new Set(habits.filter((habit) => habit.habit_kind === 'daily_commitment').map((habit) => habit.id))
   const habitIds = habits.map((habit) => habit.id)
-  const entries = habitIds.length
-    ? await supabase
+  const entriesPromise = habitIds.length
+    ? supabase
         .from('habit_entries')
         .select('entry_date, habit_id')
         .eq('completed', true)
@@ -40,7 +41,24 @@ export default async function CalendarPage({
         .in('habit_id', habitIds)
     : { data: [], error: null }
 
+  const spendingPromise = supabase
+    .from('daily_spending')
+    .select('amount')
+    .eq('user_id', authData.user.id)
+    .gte('spend_date', month.firstDate)
+    .lte('spend_date', month.lastDate)
+
+  const [entries, spending] = await Promise.all([
+    entriesPromise,
+    spendingPromise,
+  ])
+
   if (entries.error) throw new Error(`Could not load calendar: ${entries.error.message}`)
+  if (spending.error) throw new Error(`Could not load spending: ${spending.error.message}`)
+
+  const monthlySpending = sumCurrency(
+    spending.data?.map((record) => record.amount) ?? [],
+  )
 
   const commitmentsByDate = new Map<string, number>()
   const extraWinsByDate = new Map<string, number>()
@@ -109,6 +127,14 @@ export default async function CalendarPage({
             )
           })}
         </div>
+      </section>
+
+      <section className="mt-6 flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-5">
+        <div>
+          <h2 className="font-semibold text-zinc-950">Monthly spending</h2>
+          <p className="mt-1 text-sm text-zinc-600">Total recorded across {month.label}</p>
+        </div>
+        <p className="text-2xl font-semibold tabular-nums text-zinc-950">{formatGBP(monthlySpending)}</p>
       </section>
     </main>
   )
