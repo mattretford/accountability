@@ -121,6 +121,39 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_tasks: {
+        Row: {
+          archived_at: string | null
+          completed: boolean
+          created_at: string
+          id: string
+          task_month: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          task_month: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          task_month?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>

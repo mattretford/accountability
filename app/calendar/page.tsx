@@ -1,6 +1,12 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
+import {
+  archiveMonthlyTask,
+  copyMonthlyTaskToNextMonth,
+  createMonthlyTask,
+  setMonthlyTaskCompletion,
+} from '@/app/actions/monthly-tasks'
 import { monthDetails, shiftMonth, todayDate, validMonth } from '@/lib/dates'
 import { formatGBP, sumCurrency } from '@/lib/money'
 import { createClient } from '@/lib/supabase/server'
@@ -48,17 +54,28 @@ export default async function CalendarPage({
     .gte('spend_date', month.firstDate)
     .lte('spend_date', month.lastDate)
 
-  const [entries, spending] = await Promise.all([
+  const tasksPromise = supabase
+    .from('monthly_tasks')
+    .select('id, title, completed')
+    .eq('user_id', authData.user.id)
+    .eq('task_month', month.firstDate)
+    .is('archived_at', null)
+    .order('created_at')
+
+  const [entries, spending, tasks] = await Promise.all([
     entriesPromise,
     spendingPromise,
+    tasksPromise,
   ])
 
   if (entries.error) throw new Error(`Could not load calendar: ${entries.error.message}`)
   if (spending.error) throw new Error(`Could not load spending: ${spending.error.message}`)
+  if (tasks.error) throw new Error(`Could not load monthly tasks: ${tasks.error.message}`)
 
   const monthlySpending = sumCurrency(
     spending.data?.map((record) => record.amount) ?? [],
   )
+  const completedTasks = tasks.data.filter((task) => task.completed).length
 
   const commitmentsByDate = new Map<string, number>()
   const extraWinsByDate = new Map<string, number>()
@@ -135,6 +152,63 @@ export default async function CalendarPage({
           <p className="mt-1 text-sm text-zinc-600">Total recorded across {month.label}</p>
         </div>
         <p className="text-2xl font-semibold tabular-nums text-zinc-950">{formatGBP(monthlySpending)}</p>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-zinc-200 bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-semibold text-zinc-950">Monthly tasks</h2>
+            <p className="mt-1 text-sm text-zinc-600">{completedTasks} of {tasks.data.length} completed for {month.label}</p>
+          </div>
+        </div>
+
+        <form action={createMonthlyTask} className="mt-5 flex gap-3">
+          <input type="hidden" name="month" value={selectedMonth} />
+          <input
+            className="min-w-0 flex-1 rounded-lg border border-zinc-300 px-3 py-2"
+            maxLength={200}
+            name="title"
+            placeholder={`Add a task for ${month.label}`}
+            required
+          />
+          <button className="rounded-lg bg-zinc-950 px-4 py-2 font-medium text-white">Add task</button>
+        </form>
+
+        {tasks.data.length === 0 ? (
+          <p className="mt-5 rounded-lg border border-dashed border-zinc-300 p-5 text-sm text-zinc-500">No tasks for this month yet.</p>
+        ) : (
+          <div className="mt-5 space-y-2">
+            {tasks.data.map((task) => (
+              <article className={`flex items-center gap-3 rounded-lg border p-3 ${task.completed ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200'}`} key={task.id}>
+                <form action={setMonthlyTaskCompletion}>
+                  <input type="hidden" name="id" value={task.id} />
+                  <input type="hidden" name="month" value={selectedMonth} />
+                  <input type="hidden" name="completed" value={String(!task.completed)} />
+                  <button
+                    aria-label={`${task.completed ? 'Mark incomplete' : 'Mark complete'}: ${task.title}`}
+                    aria-pressed={task.completed}
+                    className={`grid size-9 place-items-center rounded-full border font-bold ${task.completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 text-transparent'}`}
+                  >
+                    ✓
+                  </button>
+                </form>
+                <p className={`min-w-0 flex-1 ${task.completed ? 'text-zinc-500 line-through' : 'text-zinc-900'}`}>{task.title}</p>
+                <div className="flex shrink-0 items-center gap-3">
+                  <form action={copyMonthlyTaskToNextMonth}>
+                    <input type="hidden" name="id" value={task.id} />
+                    <input type="hidden" name="month" value={selectedMonth} />
+                    <button className="text-sm font-medium text-zinc-700 underline underline-offset-2">Add to next month</button>
+                  </form>
+                  <form action={archiveMonthlyTask}>
+                    <input type="hidden" name="id" value={task.id} />
+                    <input type="hidden" name="month" value={selectedMonth} />
+                    <button className="text-sm text-zinc-500 underline underline-offset-2">Archive</button>
+                  </form>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
