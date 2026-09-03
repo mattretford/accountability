@@ -10,6 +10,7 @@ import {
 import { monthDetails, shiftMonth, todayDate, validMonth } from '@/lib/dates'
 import { formatGBP, sumCurrency } from '@/lib/money'
 import { createClient } from '@/lib/supabase/server'
+import { CompletionButton } from '@/components/completion-button'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -180,18 +181,13 @@ export default async function CalendarPage({
           <div className="mt-5 space-y-2">
             {tasks.data.map((task) => (
               <article className={`flex items-center gap-3 rounded-lg border p-3 ${task.completed ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200'}`} key={task.id}>
-                <form action={setMonthlyTaskCompletion}>
-                  <input type="hidden" name="id" value={task.id} />
-                  <input type="hidden" name="month" value={selectedMonth} />
-                  <input type="hidden" name="completed" value={String(!task.completed)} />
-                  <button
-                    aria-label={`${task.completed ? 'Mark incomplete' : 'Mark complete'}: ${task.title}`}
-                    aria-pressed={task.completed}
-                    className={`grid size-9 place-items-center rounded-full border font-bold ${task.completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 text-transparent'}`}
-                  >
-                    ✓
-                  </button>
-                </form>
+                <CompletionButton
+                  action={setMonthlyTaskCompletion}
+                  completed={task.completed}
+                  fields={{ id: task.id, month: selectedMonth }}
+                  itemLabel={task.title}
+                  size="small"
+                />
                 <p className={`min-w-0 flex-1 ${task.completed ? 'text-zinc-500 line-through' : 'text-zinc-900'}`}>{task.title}</p>
                 <div className="flex shrink-0 items-center gap-3">
                   <form action={copyMonthlyTaskToNextMonth}>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import { setHabitCompletion } from '@/app/actions/entries'
 import { setDailySpending } from '@/app/actions/spending'
+import { CompletionButton } from '@/components/completion-button'
 import { displayDate, shiftDate, todayDate, validDate } from '@/lib/dates'
 import { createClient } from '@/lib/supabase/server'
 import { calculateStreak } from '@/lib/streaks'
@@ -129,26 +130,23 @@ export default async function Home({
 
           return (
             <article className={`rounded-xl border p-5 ${completed ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200 bg-white'}`} key={habit.id}>
-              <form action={setHabitCompletion} className="flex items-center justify-between gap-4">
-                <input type="hidden" name="habitId" value={habit.id} />
-                <input type="hidden" name="entryDate" value={selectedDate} />
-                <input type="hidden" name="completed" value={String(!completed)} />
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className={`font-semibold ${completed ? 'text-emerald-900' : 'text-zinc-950'}`}>{habit.name}</h2>
+                  <h2 className={`font-semibold ${completed ? 'text-emerald-900 line-through' : 'text-zinc-950'}`}>{habit.name}</h2>
                   {habit.description && <p className="mt-1 text-sm text-zinc-600">{habit.description}</p>}
                   <p className="mt-2 text-xs font-medium text-amber-700" title="Current streak is calculated through today, or yesterday if today is not complete yet.">
                     🔥 {streak.current} {streak.current === 1 ? 'day' : 'days'} current · Best {streak.longest} {streak.longest === 1 ? 'day' : 'days'}
                   </p>
                 </div>
-                <button
-                  aria-label={isFuture ? `Unavailable until ${displayDate(selectedDate)}: ${habit.name}` : `${completed ? 'Mark incomplete' : 'Mark complete'}: ${habit.name}`}
-                  aria-pressed={completed}
-                  className={`grid size-11 shrink-0 place-items-center rounded-full border text-xl font-bold disabled:cursor-not-allowed disabled:opacity-40 ${completed ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-zinc-300 bg-white text-transparent'}`}
+                <CompletionButton
+                  action={setHabitCompletion}
+                  completed={completed}
                   disabled={isFuture}
-                >
-                  ✓
-                </button>
-              </form>
+                  fields={{ habitId: habit.id, entryDate: selectedDate }}
+                  itemLabel={habit.name}
+                  title={isFuture ? `Unavailable until ${displayDate(selectedDate)}` : undefined}
+                />
+              </div>
             </article>
           )
         })}
@@ -168,19 +166,16 @@ export default async function Home({
               const completed = completedByHabit.get(habit.id) ?? false
 
               return (
-                <form action={setHabitCompletion} key={habit.id}>
-                  <input type="hidden" name="habitId" value={habit.id} />
-                  <input type="hidden" name="entryDate" value={selectedDate} />
-                  <input type="hidden" name="completed" value={String(!completed)} />
-                  <button
-                    aria-pressed={completed}
-                    className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${completed ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white text-zinc-700 hover:border-violet-400'}`}
-                    disabled={isFuture}
-                    title={isFuture ? 'Extra wins cannot be selected for future days.' : habit.description ?? undefined}
-                  >
-                    {completed && <span aria-hidden="true">✓ </span>}{habit.name}
-                  </button>
-                </form>
+                <CompletionButton
+                  action={setHabitCompletion}
+                  completed={completed}
+                  disabled={isFuture}
+                  fields={{ habitId: habit.id, entryDate: selectedDate }}
+                  itemLabel={habit.name}
+                  key={habit.id}
+                  title={isFuture ? 'Extra wins cannot be selected for future days.' : habit.description ?? undefined}
+                  variant="tag"
+                />
               )
             })}
           </div>

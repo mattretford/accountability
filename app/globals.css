@@ -1,26 +1,262 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --background: #e76814;
+  --foreground: #891a10;
+  --surface: #d8d4bc;
+  --surface-soft: #dc8236;
+  --surface-muted: #d8d4bc;
+  --border: #891a10;
+  --border-strong: #b8210f;
+  --text-muted: #714236;
+  --text-body: #714236;
+  --text-strong: #891a10;
+  --text-heading: #891a10;
+  --on-accent: #d8d4bc;
+  --accent: #e76814;
+  --accent-soft: #dc8236;
+  --accent-border: #dc8236;
+  --accent-strong: #b8210f;
+  --accent-deep: #891a10;
+  --accent-text: #891a10;
+  --card-shadow: #891a10;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-zinc-50: var(--surface-soft);
+  --color-zinc-100: var(--surface-muted);
+  --color-zinc-200: var(--border);
+  --color-zinc-300: var(--border-strong);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-body);
+  --color-zinc-700: var(--text-strong);
+  --color-zinc-800: var(--text-strong);
+  --color-zinc-900: var(--text-heading);
+  --color-zinc-950: var(--text-heading);
+
+  --color-emerald-50: var(--accent-soft);
+  --color-emerald-200: var(--accent-border);
+  --color-emerald-500: var(--accent);
+  --color-emerald-600: var(--accent-strong);
+  --color-emerald-700: var(--accent-text);
+  --color-emerald-900: var(--text-heading);
+
+  --color-violet-400: var(--accent-border);
+  --color-violet-600: var(--accent-strong);
+  --color-violet-700: var(--accent-text);
+
+  --color-amber-50: var(--accent-soft);
+  --color-amber-200: var(--accent-border);
+  --color-amber-700: var(--accent-text);
+  --color-amber-800: var(--accent-text);
+
+  --color-red-50: var(--accent-soft);
+  --color-red-700: var(--accent-text);
+
+  --color-fireside: var(--accent);
+  --color-fireside-deep: var(--accent-deep);
+  --color-surface: var(--surface);
+  --color-on-accent: var(--on-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --background: #891a10;
+    --foreground: #d8d4bc;
+    --surface: #714236;
+    --surface-soft: #891a10;
+    --surface-muted: #b8210f;
+    --border: #dc8236;
+    --border-strong: #e76814;
+    --text-muted: #d8d4bc;
+    --text-body: #d8d4bc;
+    --text-strong: #d8d4bc;
+    --text-heading: #d8d4bc;
+    --on-accent: #2b100b;
+    --accent: #e76814;
+    --accent-soft: #714236;
+    --accent-border: #dc8236;
+    --accent-strong: #e76814;
+    --accent-deep: #e76814;
+    --accent-text: #dc8236;
+    --card-shadow: #2b100b;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 12% 12%, #dc8236 0 10rem, transparent 10.15rem),
+    radial-gradient(circle at 88% 28%, #891a10 0 13rem, transparent 13.15rem),
+    radial-gradient(circle at 24% 92%, #714236 0 8rem, transparent 8.15rem),
+    linear-gradient(135deg, #e76814 0%, #dc8236 46%, #b8210f 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image:
+      radial-gradient(circle at 14% 16%, #e76814 0 8rem, transparent 8.15rem),
+      radial-gradient(circle at 88% 22%, #714236 0 15rem, transparent 15.15rem),
+      radial-gradient(circle at 72% 90%, #dc8236 0 7rem, transparent 7.15rem),
+      linear-gradient(145deg, #891a10 0%, #b8210f 52%, #714236 100%);
+  }
+}
+
+/* Keep the existing utility markup semantic across both color schemes. */
+.bg-white {
+  background-color: var(--surface);
+}
+
+.bg-zinc-950 {
+  background-color: var(--accent-deep);
+}
+
+.text-white {
+  color: var(--on-accent);
+}
+
+.ring-zinc-900 {
+  --tw-ring-color: var(--accent-deep);
+}
+
+section.bg-white,
+article.bg-white {
+  box-shadow: 5px 5px 0 var(--card-shadow);
+}
+
+header a,
+header button {
+  background-color: var(--surface);
+  box-shadow: 2px 2px 0 var(--card-shadow);
+  color: var(--text-heading);
+}
+
+.border {
+  border-width: 2px;
+}
+
+button {
+  transition: transform 150ms ease, filter 150ms ease;
+}
+
+button:hover:not(:disabled) {
+  filter: saturate(1.18);
+  transform: translateY(-1px) rotate(-0.35deg);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.fire-blast-button {
+  isolation: isolate;
+  overflow: visible;
+  position: relative;
+}
+
+.fire-blast-button::before {
+  background: conic-gradient(
+    from 15deg,
+    #e76814 0deg 38deg,
+    #d8d4bc 38deg 54deg,
+    #b8210f 54deg 102deg,
+    #dc8236 102deg 146deg,
+    #891a10 146deg 190deg,
+    #e76814 190deg 244deg,
+    #714236 244deg 278deg,
+    #dc8236 278deg 326deg,
+    #b8210f 326deg 360deg
+  );
+  clip-path: polygon(50% 0%, 61% 27%, 82% 9%, 78% 37%, 100% 36%, 77% 55%, 94% 76%, 66% 70%, 63% 100%, 48% 75%, 27% 94%, 31% 66%, 2% 62%, 28% 46%, 8% 25%, 39% 31%);
+  content: "";
+  height: 180%;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+  width: 180%;
+  z-index: -1;
+}
+
+.fire-blast-active {
+  animation: fire-button-pop 650ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+.fire-blast-active::before {
+  animation: fire-burst 650ms cubic-bezier(0.18, 0.8, 0.3, 1) both;
+}
+
+.fire-checkmark {
+  color: #ffffff;
+  display: inline-block;
+}
+
+.fire-checkmark-active {
+  animation: fire-check-pop 650ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+@keyframes fire-button-pop {
+  0%, 100% { transform: scale(1); }
+  18% { transform: scale(0.82); }
+  48% { transform: scale(1.15); }
+  70% { transform: scale(0.97); }
+}
+
+@keyframes fire-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+  }
+  20% { opacity: 1; }
+  72% { opacity: 0.82; }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.65) rotate(25deg);
+  }
+}
+
+@keyframes fire-check-pop {
+  0%, 22% {
+    opacity: 0;
+    transform: scale(0.25) rotate(-18deg);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1.18) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fire-blast-active,
+  .fire-blast-active::before,
+  .fire-checkmark-active {
+    animation: none;
+  }
+
+  .fire-blast-active::before {
+    display: none;
+  }
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
 }
