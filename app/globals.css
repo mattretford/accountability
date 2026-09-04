@@ -260,3 +260,396 @@ button:active:not(:disabled) {
   background: var(--accent);
   color: var(--on-accent);
 }
+
+/* Theme preferences. Circle geometry stays fixed; palettes only replace color tokens. */
+html[data-mode="light"] { color-scheme: light; }
+html[data-mode="night"] { color-scheme: dark; }
+
+html[data-theme] {
+  --background: var(--palette-background);
+  --foreground: var(--palette-heading);
+  --surface: var(--palette-surface);
+  --surface-soft: var(--palette-soft);
+  --surface-muted: var(--palette-muted);
+  --border: var(--palette-border);
+  --border-strong: var(--palette-strong);
+  --text-muted: var(--palette-text-muted);
+  --text-body: var(--palette-text);
+  --text-strong: var(--palette-heading);
+  --text-heading: var(--palette-heading);
+  --on-accent: var(--palette-on-accent);
+  --accent: var(--palette-accent);
+  --accent-soft: var(--palette-soft);
+  --accent-border: var(--palette-accent-alt);
+  --accent-strong: var(--palette-strong);
+  --accent-deep: var(--palette-deep);
+  --accent-text: var(--palette-deep);
+  --card-shadow: var(--palette-shadow);
+  --ring-progress: var(--palette-ring-progress);
+  --ring-track: var(--palette-ring-track);
+}
+
+html[data-mode="night"] {
+  --background: var(--night-background);
+  --foreground: var(--night-heading);
+  --surface: var(--night-surface);
+  --surface-soft: var(--night-soft);
+  --surface-muted: var(--night-muted);
+  --border: var(--night-border);
+  --border-strong: var(--night-accent);
+  --text-muted: var(--night-text-muted);
+  --text-body: var(--night-text);
+  --text-strong: var(--night-heading);
+  --text-heading: var(--night-heading);
+  --on-accent: var(--night-on-accent);
+  --accent: var(--night-accent);
+  --accent-soft: var(--night-soft);
+  --accent-border: var(--night-accent-alt);
+  --accent-strong: var(--night-accent);
+  --accent-deep: var(--night-accent);
+  --accent-text: var(--night-accent-alt);
+  --card-shadow: var(--night-shadow);
+  --ring-progress: var(--night-ring-progress);
+  --ring-track: var(--night-ring-track);
+}
+
+html[data-theme="fireside"] {
+  --palette-background: #e76814;
+  --palette-surface: #d8d4bc;
+  --palette-soft: #dc8236;
+  --palette-muted: #d8d4bc;
+  --palette-border: #891a10;
+  --palette-strong: #b8210f;
+  --palette-accent: #e76814;
+  --palette-accent-alt: #dc8236;
+  --palette-deep: #891a10;
+  --palette-heading: #891a10;
+  --palette-text: #714236;
+  --palette-text-muted: #714236;
+  --palette-on-accent: #d8d4bc;
+  --palette-shadow: #891a10;
+  --palette-ring-progress: #891a10;
+  --palette-ring-track: #dc8236;
+  --orb-one: #dc8236;
+  --orb-two: #891a10;
+  --orb-three: #714236;
+  --gradient-start: #e76814;
+  --gradient-middle: #dc8236;
+  --gradient-end: #b8210f;
+  --night-background: #891a10;
+  --night-surface: #714236;
+  --night-soft: #891a10;
+  --night-muted: #b8210f;
+  --night-border: #dc8236;
+  --night-accent: #e76814;
+  --night-accent-alt: #dc8236;
+  --night-heading: #d8d4bc;
+  --night-text: #d8d4bc;
+  --night-text-muted: #d8d4bc;
+  --night-on-accent: #2b100b;
+  --night-shadow: #2b100b;
+  --night-ring-progress: #e76814;
+  --night-ring-track: #891a10;
+  --night-orb-one: #e76814;
+  --night-orb-two: #714236;
+  --night-orb-three: #dc8236;
+  --night-gradient-start: #891a10;
+  --night-gradient-middle: #b8210f;
+  --night-gradient-end: #714236;
+}
+
+html[data-theme="ocean"] {
+  --palette-background: #0ea5e9;
+  --palette-surface: #e0f2fe;
+  --palette-soft: #67e8f9;
+  --palette-muted: #bae6fd;
+  --palette-border: #075985;
+  --palette-strong: #0284c7;
+  --palette-accent: #38bdf8;
+  --palette-accent-alt: #22d3ee;
+  --palette-deep: #075985;
+  --palette-heading: #082f49;
+  --palette-text: #164e63;
+  --palette-text-muted: #155e75;
+  --palette-on-accent: #e0f2fe;
+  --palette-shadow: #082f49;
+  --palette-ring-progress: #075985;
+  --palette-ring-track: #7dd3fc;
+  --orb-one: #67e8f9;
+  --orb-two: #075985;
+  --orb-three: #155e75;
+  --gradient-start: #0ea5e9;
+  --gradient-middle: #38bdf8;
+  --gradient-end: #0369a1;
+  --night-background: #082f49;
+  --night-surface: #164e63;
+  --night-soft: #0e7490;
+  --night-muted: #0369a1;
+  --night-border: #38bdf8;
+  --night-accent: #22d3ee;
+  --night-accent-alt: #67e8f9;
+  --night-heading: #e0f2fe;
+  --night-text: #bae6fd;
+  --night-text-muted: #7dd3fc;
+  --night-on-accent: #082f49;
+  --night-shadow: #020617;
+  --night-ring-progress: #67e8f9;
+  --night-ring-track: #0e7490;
+  --night-orb-one: #0ea5e9;
+  --night-orb-two: #155e75;
+  --night-orb-three: #22d3ee;
+  --night-gradient-start: #082f49;
+  --night-gradient-middle: #075985;
+  --night-gradient-end: #164e63;
+}
+
+html[data-theme="forest"] {
+  --palette-background: #65a30d;
+  --palette-surface: #ecfccb;
+  --palette-soft: #bef264;
+  --palette-muted: #d9f99d;
+  --palette-border: #365314;
+  --palette-strong: #4d7c0f;
+  --palette-accent: #84cc16;
+  --palette-accent-alt: #a3e635;
+  --palette-deep: #365314;
+  --palette-heading: #1a2e05;
+  --palette-text: #3f6212;
+  --palette-text-muted: #4d7c0f;
+  --palette-on-accent: #f7fee7;
+  --palette-shadow: #1a2e05;
+  --palette-ring-progress: #365314;
+  --palette-ring-track: #bef264;
+  --orb-one: #a3e635;
+  --orb-two: #365314;
+  --orb-three: #4d7c0f;
+  --gradient-start: #84cc16;
+  --gradient-middle: #65a30d;
+  --gradient-end: #3f6212;
+  --night-background: #1a2e05;
+  --night-surface: #29430b;
+  --night-soft: #365314;
+  --night-muted: #3f6212;
+  --night-border: #84cc16;
+  --night-accent: #a3e635;
+  --night-accent-alt: #bef264;
+  --night-heading: #f7fee7;
+  --night-text: #ecfccb;
+  --night-text-muted: #bef264;
+  --night-on-accent: #1a2e05;
+  --night-shadow: #0a1302;
+  --night-ring-progress: #bef264;
+  --night-ring-track: #365314;
+  --night-orb-one: #65a30d;
+  --night-orb-two: #365314;
+  --night-orb-three: #a3e635;
+  --night-gradient-start: #1a2e05;
+  --night-gradient-middle: #365314;
+  --night-gradient-end: #29430b;
+}
+
+html[data-theme="lavender"] {
+  --palette-background: #a855f7;
+  --palette-surface: #f3e8ff;
+  --palette-soft: #e879f9;
+  --palette-muted: #e9d5ff;
+  --palette-border: #6b21a8;
+  --palette-strong: #9333ea;
+  --palette-accent: #c026d3;
+  --palette-accent-alt: #e879f9;
+  --palette-deep: #6b21a8;
+  --palette-heading: #3b0764;
+  --palette-text: #701a75;
+  --palette-text-muted: #7e22ce;
+  --palette-on-accent: #faf5ff;
+  --palette-shadow: #3b0764;
+  --palette-ring-progress: #6b21a8;
+  --palette-ring-track: #e879f9;
+  --orb-one: #e879f9;
+  --orb-two: #6b21a8;
+  --orb-three: #7e22ce;
+  --gradient-start: #a855f7;
+  --gradient-middle: #d946ef;
+  --gradient-end: #7e22ce;
+  --night-background: #3b0764;
+  --night-surface: #581c87;
+  --night-soft: #701a75;
+  --night-muted: #6b21a8;
+  --night-border: #d946ef;
+  --night-accent: #e879f9;
+  --night-accent-alt: #f0abfc;
+  --night-heading: #faf5ff;
+  --night-text: #f3e8ff;
+  --night-text-muted: #e9d5ff;
+  --night-on-accent: #3b0764;
+  --night-shadow: #1f0536;
+  --night-ring-progress: #f0abfc;
+  --night-ring-track: #6b21a8;
+  --night-orb-one: #c026d3;
+  --night-orb-two: #6b21a8;
+  --night-orb-three: #e879f9;
+  --night-gradient-start: #3b0764;
+  --night-gradient-middle: #701a75;
+  --night-gradient-end: #581c87;
+}
+
+html[data-theme="citrus"] {
+  --palette-background: #facc15;
+  --palette-surface: #fef3c7;
+  --palette-soft: #fdba74;
+  --palette-muted: #fde68a;
+  --palette-border: #9a3412;
+  --palette-strong: #ea580c;
+  --palette-accent: #fb923c;
+  --palette-accent-alt: #f97316;
+  --palette-deep: #9a3412;
+  --palette-heading: #713f12;
+  --palette-text: #854d0e;
+  --palette-text-muted: #a16207;
+  --palette-on-accent: #fffbeb;
+  --palette-shadow: #713f12;
+  --palette-ring-progress: #9a3412;
+  --palette-ring-track: #fdba74;
+  --orb-one: #fb923c;
+  --orb-two: #ea580c;
+  --orb-three: #a16207;
+  --gradient-start: #facc15;
+  --gradient-middle: #fb923c;
+  --gradient-end: #ea580c;
+  --night-background: #422006;
+  --night-surface: #713f12;
+  --night-soft: #7c2d12;
+  --night-muted: #9a3412;
+  --night-border: #facc15;
+  --night-accent: #fb923c;
+  --night-accent-alt: #fde68a;
+  --night-heading: #fffbeb;
+  --night-text: #fef3c7;
+  --night-text-muted: #fde68a;
+  --night-on-accent: #422006;
+  --night-shadow: #1c0d02;
+  --night-ring-progress: #fde68a;
+  --night-ring-track: #7c2d12;
+  --night-orb-one: #facc15;
+  --night-orb-two: #ea580c;
+  --night-orb-three: #fb923c;
+  --night-gradient-start: #422006;
+  --night-gradient-middle: #7c2d12;
+  --night-gradient-end: #713f12;
+}
+
+@property --circle-one-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 12%;
+}
+
+@property --circle-one-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 12%;
+}
+
+@property --circle-two-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 88%;
+}
+
+@property --circle-two-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 28%;
+}
+
+@property --circle-three-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 24%;
+}
+
+@property --circle-three-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 92%;
+}
+
+body {
+  --circle-one-x: 12%;
+  --circle-one-y: 12%;
+  --circle-two-x: 88%;
+  --circle-two-y: 28%;
+  --circle-three-x: 24%;
+  --circle-three-y: 92%;
+  animation: drift-background-circles 36s ease-in-out infinite;
+  background-image:
+    radial-gradient(circle at var(--circle-one-x) var(--circle-one-y), var(--orb-one) 0 10rem, transparent 10.15rem),
+    radial-gradient(circle at var(--circle-two-x) var(--circle-two-y), var(--orb-two) 0 13rem, transparent 13.15rem),
+    radial-gradient(circle at var(--circle-three-x) var(--circle-three-y), var(--orb-three) 0 8rem, transparent 8.15rem),
+    linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-middle) 46%, var(--gradient-end) 100%);
+}
+
+html[data-mode="night"] body {
+  background-image:
+    radial-gradient(circle at var(--circle-one-x) var(--circle-one-y), var(--night-orb-one) 0 10rem, transparent 10.15rem),
+    radial-gradient(circle at var(--circle-two-x) var(--circle-two-y), var(--night-orb-two) 0 13rem, transparent 13.15rem),
+    radial-gradient(circle at var(--circle-three-x) var(--circle-three-y), var(--night-orb-three) 0 8rem, transparent 8.15rem),
+    linear-gradient(135deg, var(--night-gradient-start) 0%, var(--night-gradient-middle) 46%, var(--night-gradient-end) 100%);
+}
+
+@keyframes drift-background-circles {
+  0%,
+  100% {
+    --circle-one-x: 12%;
+    --circle-one-y: 12%;
+    --circle-two-x: 88%;
+    --circle-two-y: 28%;
+    --circle-three-x: 24%;
+    --circle-three-y: 92%;
+  }
+
+  33% {
+    --circle-one-x: 20%;
+    --circle-one-y: 18%;
+    --circle-two-x: 80%;
+    --circle-two-y: 20%;
+    --circle-three-x: 31%;
+    --circle-three-y: 84%;
+  }
+
+  66% {
+    --circle-one-x: 8%;
+    --circle-one-y: 25%;
+    --circle-two-x: 92%;
+    --circle-two-y: 39%;
+    --circle-three-x: 17%;
+    --circle-three-y: 88%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}
+
+.fire-blast-button::before {
+  background: conic-gradient(
+    from 15deg,
+    var(--accent) 0deg 46deg,
+    var(--surface) 46deg 68deg,
+    var(--accent-strong) 68deg 126deg,
+    var(--accent-border) 126deg 184deg,
+    var(--accent-deep) 184deg 238deg,
+    var(--accent) 238deg 300deg,
+    var(--accent-border) 300deg 360deg
+  );
+}
+
+.calendar-ring-track {
+  stroke: var(--ring-track);
+}
+
+.calendar-ring-progress {
+  stroke: var(--ring-progress);
+}

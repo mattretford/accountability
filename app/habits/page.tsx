@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { archiveHabit, createHabit, updateHabit } from '@/app/actions/habits'
-import { logout } from '@/app/actions/auth'
+import { SettingsMenu } from '@/components/settings-menu'
 import { createClient } from '@/lib/supabase/server'
 import type { HabitKind } from '@/lib/database.types'
 
@@ -78,15 +78,15 @@ export default async function HabitsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-10">
-      <header className="flex items-start justify-between gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-zinc-950">Habits</h1>
           <p className="mt-1 text-sm text-zinc-600">Commitments and extra wins for {authData.user.email}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/">Today</Link>
           <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/calendar">Calendar</Link>
-          <form action={logout}><button className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">Sign out</button></form>
+          <SettingsMenu />
         </div>
       </header>
 

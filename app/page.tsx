@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { logout } from '@/app/actions/auth'
 import { setHabitCompletion } from '@/app/actions/entries'
 import { setDailySpending } from '@/app/actions/spending'
 import { CompletionButton } from '@/components/completion-button'
+import { SettingsMenu } from '@/components/settings-menu'
 import { displayDate, shiftDate, todayDate, validDate } from '@/lib/dates'
 import { createClient } from '@/lib/supabase/server'
 import { calculateStreak } from '@/lib/streaks'
@@ -91,16 +91,16 @@ export default async function Home({
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-10">
-      <header className="flex items-start justify-between gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-zinc-500">{isToday ? 'Today' : 'Daily checklist'}</p>
           <h1 className="mt-1 text-3xl font-semibold text-zinc-950">{displayDate(selectedDate)}</h1>
           <p className="mt-2 text-sm text-zinc-600">{completedCount} of {dailyCommitments.length} daily commitments completed</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/calendar">Calendar</Link>
           <Link className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" href="/habits">Manage habits</Link>
-          <form action={logout}><button className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">Sign out</button></form>
+          <SettingsMenu />
         </div>
       </header>
 
@@ -152,7 +152,7 @@ export default async function Home({
         })}
       </section>
 
-      <section className="mt-10 border-t border-zinc-200 pt-8">
+      <section className="mt-8 rounded-xl border border-zinc-200 bg-white p-5">
         <div>
           <h2 className="text-xl font-semibold text-zinc-950">Extra wins</h2>
           <p className="mt-1 text-sm text-zinc-600">Optional wins for this day · {extraWinCount} selected</p>
@@ -182,7 +182,7 @@ export default async function Home({
         )}
       </section>
 
-      <section className="mt-10 border-t border-zinc-200 pt-8">
+      <section className="mt-6 rounded-xl border border-zinc-200 bg-white p-5">
         <div>
           <h2 className="text-xl font-semibold text-zinc-950">Daily spending</h2>
           <p className="mt-1 text-sm text-zinc-600">Record your total spending for this day in UK pounds.</p>
